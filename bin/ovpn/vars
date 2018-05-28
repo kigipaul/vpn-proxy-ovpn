@@ -61,8 +61,8 @@ export KEY_EXPIRE=3650
 # These are the default values for fields
 # which will be placed in the certificate.
 # Don't leave any of these fields blank.
-export KEY_COUNTRY="US"
-export KEY_PROVINCE="CA"
-export KEY_CITY="SanFrancisco"
-export KEY_ORG="Fort-Funston"
-export KEY_EMAIL="me@myhost.mydomain"
+export KEY_COUNTRY="TW"
+export KEY_PROVINCE="TW"
+export KEY_CITY="TAIPEI"
+export KEY_ORG="kgp-tw"
+export KEY_EMAIL="kigipaul@gmail.com"
