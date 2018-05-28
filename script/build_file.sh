@@ -35,14 +35,14 @@ SERVER_PORT=`python3 -c "import random; print(random.randint(35000, 40000))"`
 MGMT_PORT=`python3 -c "import random; print(random.randint(30000, 34000))"`
 NETs=()
 NUM_TAP=(`ip link |grep "tap"|awk '{print $2}'`)
-LOCAL_DEV="tap$NUM_TAP"
+LOCAL_DEV="tap${#NUM_TAP[@]}"
 LOCAL_IFs=()
 ROUTE_TABLES=""
 OTHERS=
 for ((i=0;i<$NUM_REMOTE;i++));do
     route_table=(`route -n|grep $(REMOTE_IFs[$i])|awk '{print $1,$3}'`)
     for route in ${route_table[@]};do
-        ROUTE_TABLES="$ROUTE_TABLESpush \"route $route\"\n"
+        ROUTE_TABLES="${ROUTE_TABLES}push \"route $route\"\n"
     done
     NETs+=("$SERVER_IP\\/$SERVER_IP_PREFIX")
     LOCAL_IFs+=($LOCAL_DEV)
@@ -111,8 +111,8 @@ sed -i "s/!SERVER_IP_MASK!/$SERVER_IP_MASK/g" $OUT_OVPN
 sed -i "s/!SERVER_PORT!/$SERVER_PORT/g" $OUT_OVPN
 sed -i "s/!SERVER_CERT!/keys\/$SERVER_NAME.crt/g" $OUT_OVPN
 sed -i "s/!SERVER_KEY!/keys\/$SERVER_NAME.key/g" $OUT_OVPN
-sed -i "s/!SERVER_DH!/keys\/$KEY_SIZE.pem/g" $OUT_OVPN
-sed -i "s/!ROUTE_TABLES/$ROUTE_TABLES/g" $OUT_OVPN
+sed -i "s/!SERVER_DH!/keys\/dh$KEY_SIZE.pem/g" $OUT_OVPN
+sed -i "s/!ROUTE_TABLES!/$ROUTE_TABLES/g" $OUT_OVPN
 sed -i "s/!MGMT_PORT!/$MGMT_PORT/g" $OUT_OVPN
 sed -i "s/!OTHERS!/$OTHERS/g" $OUT_OVPN
 
