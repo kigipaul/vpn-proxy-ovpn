@@ -2,6 +2,7 @@
 ###
 #  General Init
 ###
+DEV='ens4'
 SCRIPT_PATH=$(dirname "$0")
 ROOT_PATH=$SCRIPT_PATH/..
 BIN_KEY_PATH=$ROOT_PATH/bin/ovpn
@@ -40,9 +41,11 @@ LOCAL_IFs=()
 ROUTE_TABLES=""
 OTHERS=
 for ((i=0;i<$NUM_REMOTE;i++));do
-    route_table=(`route -n|grep $(REMOTE_IFs[$i])|awk '{print $1,$3}'`)
+    route_table=(`route -n|grep "${REMOTE_IFs[$i]}"|awk '{print $1"_"$3}'`)
     for route in ${route_table[@]};do
-        ROUTE_TABLES="${ROUTE_TABLES}push \"route $route\"\n"
+        p=`echo $route|cut -d'_' -f 1`
+        m=`echo $route|cut -d'_' -f 2`
+        ROUTE_TABLES="${ROUTE_TABLES}push \"route $p $m\"\n"
     done
     NETs+=("$SERVER_IP\\/$SERVER_IP_PREFIX")
     LOCAL_IFs+=($LOCAL_DEV)
@@ -100,6 +103,7 @@ CLIENT_CA=`cat keys/ca.crt`
 CLIENT_TA=`cat keys/ta.key`
 CLIENT_CERT=`cat keys/${CLIENT_NAME}.crt`
 CLIENT_KEY=`cat keys/${CLIENT_NAME}.key`
+LOCAL_IP=`ifconfig $DEV| awk '/inet /{print $2}'`
 ###
 #  Update File
 ###
@@ -120,6 +124,7 @@ sed -i "s/!CLIENT_CA!/$CLIENT_CA/g" $OUT_USER
 sed -i "s/!CLIENT_TA!/$CLIENT_TA/g" $OUT_USER
 sed -i "s/!CLIENT_CERT!/$CLIENT_CERT/g" $OUT_USER
 sed -i "s/!CLIENT_KEY!/$CLIENT_KEY/g" $OUT_USER
+sed -i "s/!SERVER_PORT!/$SERVER_PORT/g" $OUT_USER
 
 sed -i "s/!NUM_REMOTE!/$NUM_REMOTE/g" $OUT_SET
 sed -i "s/!SERVER_IP!/$SERVER_IP/g" $OUT_SET
