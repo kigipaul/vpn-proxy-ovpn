@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""
+Copyright by kigipaul 2018. 
+"""
+import random
+import socket
+import struct
+import sys
+import argparse
+
+PREFIX = 32
+TYPE = 'all'
+
+_NET1 = struct.unpack("!I", socket.inet_aton("10.255.255.255"))[0]
+_NET1_p = 8
+_NET2 = struct.unpack("!I", socket.inet_aton("172.31.255.255"))[0]
+_NET2_p = 12
+_NET3 = struct.unpack("!I", socket.inet_aton("192.168.255.255"))[0]
+_NET3_p = 16
+_MASK = struct.unpack("!I", socket.inet_aton("255.255.255.255"))[0]
+
+
+def get_ip(ip_list, prefix):
+    get_net_name = random.sample(ip_list, 1)[0].upper()
+    get_net = globals()['_{}'.format(get_net_name)]
+    p = globals()['_{}_p'.format(get_net_name)]
+    mask1 = int(bin(_MASK << (32-p))[-32:], 2)
+    start = get_net & mask1
+    ip = random.randint(start, get_net)
+    if prefix > p:
+        mask2 = int(bin(_MASK << (32-prefix))[-32:], 2)
+        ip = ip & mask2
+    return socket.inet_ntoa(struct.pack('>I', ip))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+            prog=sys.argv[0],
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description='''Get Random IP''',
+            epilog='''
+TYPE:
+  Here have three virtual network:
+    net1: 10.0.0.0/8, net2: 172.16.0.0/12, net3: 192.168.0.0/16
+  Type is those virtual network combination
+
+  Example:
+    --type net2,net3  : Get Random IP from net2 and net3
+    --type net1,net2,net3  : This Command is the same from '--type all'
+            '''
+            )
+    parser.add_argument('-p', '--prefix', type=int,
+            help="0~32. Have limit with differen type.",
+            default=PREFIX)
+    parser.add_argument('-t', '--type', type=str,
+            help="Follow Type Block.", default=TYPE)
+    args = parser.parse_args()
+    if args.type.lower() == 'all':
+        t = "net1,net2,net3"
+    else:
+        t = args.type
+    print(get_ip(t.split(","), args.prefix))
