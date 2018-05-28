@@ -8,7 +8,7 @@ BIN_KEY_PATH=$ROOT_PATH/bin/ovpn
 CONF_PATH=$ROOT_PATH/config
 BASE_OVPN=$ROOT_PATH/templates/ovpn.conf
 BASE_USER=$ROOT_PATH/templates/vpn-proxy.ovpn
-BASE_SET=$SCRIPT_PATH/setServer.sh
+BASE_SET=$ROOT_PATH/templates/setServer.sh
 OUT_OVPN=$ROOT_PATH/o_proxy.conf
 OUT_SET=$ROOT_PATH/o_setServer.sh
 OUT_USER=$ROOT_PATH/o_vpn-proxy.ovpn
@@ -33,7 +33,8 @@ SERVER_IP_MASK="255.255.255.0"
 SERVER_IP_PREFIX="24"
 SERVER_PORT=`python3 -c "import random; print(random.randint(35000, 40000))"`
 MGMT_PORT=`python3 -c "import random; print(random.randint(30000, 34000))"`
-NUM_TAP=(`ip link |grep "tap"|awk '{print $2}')
+NETs=()
+NUM_TAP=(`ip link |grep "tap"|awk '{print $2}'`)
 LOCAL_DEV="tap$NUM_TAP"
 LOCAL_IFs=()
 ROUTE_TABLES=""
@@ -43,6 +44,7 @@ for ((i=0;i<$NUM_REMOTE;i++));do
     for route in ${route_table[@]};do
         ROUTE_TABLES="$ROUTE_TABLESpush \"route $route\"\n"
     done
+    NETs+=("$SERVER_IP\\/$SERVER_IP_PREFIX")
     LOCAL_IFs+=($LOCAL_DEV)
 done
 
@@ -121,6 +123,7 @@ sed -i "s/!CLIENT_KEY!/$CLIENT_KEY/g" $OUT_USER
 
 sed -i "s/!NUM_REMOTE!/$NUM_REMOTE/g" $OUT_SET
 sed -i "s/!SERVER_IP!/$SERVER_IP/g" $OUT_SET
+sed -i "s/!NETs!/$NETs/g" $OUT_SET
 sed -i "s/!SERVER_PORT!/$SERVER_PORT/g" $OUT_SET
 sed -i "s/!SERVER_IP_PREFIX!/$SERVER_IP_PREFIX/g" $OUT_SET
 sed -i "s/!REMOTE_IFs!/${REMOTE_IFs[@]}/g" $OUT_SET
