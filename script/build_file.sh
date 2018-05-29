@@ -5,7 +5,7 @@
 DEV='ens4'
 SCRIPT_PATH=$(dirname "$0")
 ROOT_PATH=$SCRIPT_PATH/..
-BIN_KEY_PATH=$ROOT_PATH/bin/ovpn
+BIN_KEY_PATH=$ROOT_PATH/bin/easy-rsa
 CONF_PATH=$ROOT_PATH/config
 BASE_OVPN=$ROOT_PATH/templates/ovpn.conf
 BASE_USER=$ROOT_PATH/templates/vpn-proxy.ovpn
@@ -58,42 +58,9 @@ now=`pwd`
 cd $BIN_KEY_PATH
 source ./vars
 ./clean-all
-./build-ca << eof
-
-
-
-
-
-
-
-
-eof
-./build-key-server $SERVER_NAME << eof
-
-
-
-
-
-
-
-
-
-
-
-eof
-./build-key $CLIENT_NAME << eof
-
-
-
-
-
-
-
-
-
-
-
-eof
+./build-ca --batch
+./build-key-server --batch $SERVER_NAME
+./build-key --batch $CLIENT_NAME
 ./build-dh
 cd keys
 openvpn --genkey --secret ta.key
@@ -122,10 +89,10 @@ sed -i "s/!OTHERS!/$OTHERS/g" $OUT_OVPN
 
 sed -i "s/!SERVER_PORT!/$SERVER_PORT/g" $OUT_USER
 sed -i "s/!LOCAL_IP!/$LOCAL_IP/g" $OUT_USER
-echo -e $CLIENT_CA >> $OUT_USER
-echo -e $CLIENT_TA >> $OUT_USER
-echo -e $CLIENT_CERT >> $OUT_USER
-echo -e $CLIENT_KEY >> $OUT_USER
+echo -e "$CLIENT_CA" >> $OUT_USER
+echo -e "$CLIENT_TA" >> $OUT_USER
+echo -e "$CLIENT_CERT" >> $OUT_USER
+echo -e "$CLIENT_KEY" >> $OUT_USER
 
 sed -i "s/!NUM_REMOTE!/$NUM_REMOTE/g" $OUT_SET
 sed -i "s/!SERVER_IP!/$SERVER_IP/g" $OUT_SET

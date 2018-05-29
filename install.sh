@@ -38,7 +38,7 @@ for ((i=0;i<${#REMOTE[@]};i++));do
   screen -S VPN${i} -dm openvpn --config $CONF_PATH/remote/$REMOTE_CONF
   sleep 2
 done
-
+sleep 10
 echo "==========================="
 echo "=   Create Setting file   ="
 echo "==========================="
