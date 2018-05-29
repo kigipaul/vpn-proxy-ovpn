@@ -99,10 +99,10 @@ cd keys
 openvpn --genkey --secret ta.key
 cd $now
 mv $BIN_KEY_PATH/keys .
-CLIENT_CA=`cat keys/ca.crt`
-CLIENT_TA=`cat keys/ta.key`
-CLIENT_CERT=`cat keys/${CLIENT_NAME}.crt`
-CLIENT_KEY=`cat keys/${CLIENT_NAME}.key`
+CLIENT_CA="<ca>\n`cat keys/ca.crt`\n</ca>"
+CLIENT_TA="<tls-auth>\n`cat keys/ta.key`\n</tls-auth>"
+CLIENT_CERT="<cert>\n`cat keys/${CLIENT_NAME}.crt`\n</cert>"
+CLIENT_KEY="<key>\n`cat keys/${CLIENT_NAME}.key`\n</key>"
 LOCAL_IP=`ifconfig $DEV| awk '/inet /{print $2}'`
 ###
 #  Update File
@@ -120,11 +120,12 @@ sed -i "s/!ROUTE_TABLES!/$ROUTE_TABLES/g" $OUT_OVPN
 sed -i "s/!MGMT_PORT!/$MGMT_PORT/g" $OUT_OVPN
 sed -i "s/!OTHERS!/$OTHERS/g" $OUT_OVPN
 
-sed -i "s/!CLIENT_CA!/$CLIENT_CA/g" $OUT_USER
-sed -i "s/!CLIENT_TA!/$CLIENT_TA/g" $OUT_USER
-sed -i "s/!CLIENT_CERT!/$CLIENT_CERT/g" $OUT_USER
-sed -i "s/!CLIENT_KEY!/$CLIENT_KEY/g" $OUT_USER
 sed -i "s/!SERVER_PORT!/$SERVER_PORT/g" $OUT_USER
+sed -i "s/!LOCAL_IP!/$LOCAL_IP/g" $OUT_USER
+echo -e $CLIENT_CA >> $OUT_USER
+echo -e $CLIENT_TA >> $OUT_USER
+echo -e $CLIENT_CERT >> $OUT_USER
+echo -e $CLIENT_KEY >> $OUT_USER
 
 sed -i "s/!NUM_REMOTE!/$NUM_REMOTE/g" $OUT_SET
 sed -i "s/!SERVER_IP!/$SERVER_IP/g" $OUT_SET
