@@ -3,6 +3,7 @@
 #  General Init
 ###
 DEV='ens4'
+NET_GROUP='all'
 SCRIPT_PATH=$(dirname "$0")
 ROOT_PATH=$SCRIPT_PATH/..
 BIN_KEY_PATH=$ROOT_PATH/bin/easy-rsa
@@ -13,6 +14,13 @@ BASE_SET=$ROOT_PATH/templates/setServer.sh
 OUT_OVPN=$ROOT_PATH/o_proxy.conf
 OUT_SET=$ROOT_PATH/o_setServer.sh
 OUT_USER=$ROOT_PATH/o_vpn-proxy.ovpn
+
+if [ ! -z $1 ]; then
+    DEV=$1
+fi
+if [ ! -z $2 ]; then
+    NET_GROUP=$2
+fi
 
 ###
 #  Get Remote VPN Info
@@ -29,7 +37,7 @@ fi
 ###
 CLIENT_NAME="client-"`uuidgen|awk -F'-' '{print $2$3}'`
 SERVER_NAME="vpn-proxy"
-SERVER_IP=`$ROOT_PATH/bin/randip -p 24 -t net2,net3`
+SERVER_IP=`$ROOT_PATH/bin/randip -p 24 -t $NET_GROUP`
 SERVER_IP_MASK="255.255.255.0"
 SERVER_IP_PREFIX="24"
 SERVER_PORT=`python3 -c "import random; print(random.randint(35000, 40000))"`

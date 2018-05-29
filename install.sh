@@ -36,7 +36,9 @@ function init_openvpn() {
     echo "=========================="
     echo "=   Check OpenVPN User   ="
     echo "=========================="
-    if id openvpn|egrep -q '^.*no such user.*$';then
+    getid=`id openvpn`
+    ch=$?
+    if [ $ch -ne 0 ] ;then
       echo ">> Create User"
       useradd openvpn
     else
@@ -78,7 +80,7 @@ function create_file() {
     echo "=   Create Setting file   ="
     echo "==========================="
 
-    $SCRIPT_PATH/build_file.sh
+    $SCRIPT_PATH/build_file.sh $1 $2
     chbuild=$?
     if [ $chbuild -ne 0 ];then
         echo "Error from build_file"
@@ -137,15 +139,18 @@ while [ ! -z $1 ]; do
         --no-start) NO_START=1;shift;;
         --dev) shift; DEV=$1; shift;;
         --net) shift; NET=$1; shift;;
-        *) usage;;;
+        *) usage;shift;;
     esac
 done
 if [ -z $WITHOUT_INIT ];then
     init_openvpn
 fi
 connect_remote $WITHOUT_REMOTE_VPN
+if [ -z $DEV ];then
+    NET=
+fi
 if [ -z $WITHOUT_CREATE_FILE ];then
-    create_file 
+    create_file $DEV $NET
 fi
 install_config $NO_START
 clean
