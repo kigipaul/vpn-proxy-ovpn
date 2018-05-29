@@ -101,7 +101,7 @@ function install_config() {
     mv keys $VPN_PATH/
 
     if [ -z $no_start ];then
-        echo -n ">> Start OpenVPN Server ... "
+        echo ">> Start OpenVPN Server ... "
         $VPN_PATH/setServer.sh
         openvpn --writepid /run/openvpn/ovpn-proxy.pid --daemon ovpn-proxy --cd $VPN_PATH --config $VPN_PATH/proxy.conf
         ch=$?
